@@ -23,6 +23,7 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ---
 
+## Características Técnicas de las computadoras del Grupo
 
 | Persona | CPU | RAM | SO |
 | :--- | :--- | :--- | :--- |
