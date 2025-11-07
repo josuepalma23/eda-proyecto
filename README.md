@@ -23,10 +23,10 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ---
 
-```
+
 | Persona | CPU | RAM | SO |
 | :--- | :--- | :--- | :--- |
 | Zenán | Intel Core i5-13420H (8 núcleos) | 16gb | Windows 11 |
 | Josue | AMD Ryzen 5 5500U with Radeon Graphics (6 núcleos) | 8gb | Linux (Ubuntu) |
 | Jhon | AMD Ryzen 5 7520U with Radeon Graphics (4 núcleos) | 16gb | Windows 11 |
-```
+
