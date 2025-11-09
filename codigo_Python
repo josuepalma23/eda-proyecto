@@ -1,0 +1,265 @@
+import pandas as pd
+import time
+from typing import List, Dict, Callable
+from multiprocessing import Pool, cpu_count
+import sys
+import os
+
+# --- 1. Configuración Global del Proyecto ---
+# Columna a ordenar:
+COLUMNA_A_ORDENAR = 'AvgTemperatura' 
+# Dirección: se ordenará de forma descendente para las temperaturas más altas
+ORDEN_DESCENDENTE = True 
+# Umbral mínimo para usar paralelismo (ayuda a evitar overhead en listas pequeñas)
+UMBRAL_PARALELO = 10000 
+
+
+# --- 2. Funciones de Lectura y Ayuda ---
+
+# Se crea la funcion lector_datos con la ruta del archivo como argumento
+def lector_datos(ruta_archivo: str) -> List[Dict]: # en este caso como el archivo .csv esta dentro del notebook no hace falta la direccion
+    #Lee el archivo CSV con pandas y retorna una lista de diccionarios cada diccionario representa una fila del .csv
+    
+    if not os.path.exists(ruta_archivo): #verifica si el archivo existe
+        print(f"Error: Archivo de datos no encontrado en la ruta '{ruta_archivo}'.")
+        return []
+        
+    print(f"Leyendo el archivo de datos.....")
+    try:
+        df = pd.read_csv(ruta_archivo, low_memory=False) #low_memory hace que pandas lea el archivo completo antes de inferir tipos de datos
+        return df.to_dict('records')  #convierte el dataframe en una lista de diccionarios
+    except FileNotFoundError:
+        print(f"Error: Archivo no encontrado en la ruta {ruta_archivo}")
+        return []
+    except Exception as e:
+        print(f"Error al leer el archivo: {e}")
+        return []
+
+# Creamos una funcion clave para ordenar y extraer el valor de la columna (columna_a_ordenar)
+def obtener_clave(item: Dict) -> float:
+    #Función clave para ordenar, extrae el valor de la temperatura
+    try:
+        # Usamos la variable global
+        return float(item.get(COLUMNA_A_ORDENAR, 0)) # se obtiene el valor de la columna a ordenar, si no existe devuelve un cero
+    except (ValueError, TypeError):
+        return 0.0
+
+# --- 3. Algoritmo 1: Merge Sort (Simple y Multiproceso) ---
+
+# Función merge
+def merge(izq: List[Dict], derecha: List[Dict], descendente: bool) -> List[Dict]: #la funcion merge recibe dos listas ordenadas en modo de diccionarios
+    #Combina dos listas ordenadas
+    merged = []
+    i = j = 0
+ 
+    while i < len(izq) and j < len(derecha): 
+
+        # toma la temperatura de cada elemento
+        llave_izq = obtener_clave(izq[i]) 
+        llave_derech = obtener_clave(derecha[j])
+
+        # Lógica de comparación: Si 'descendente' es True, queremos el mayor primero.
+        comparacion = llave_izq > llave_derech if descendente else llave_izq < llave_derech
+
+        if comparacion:
+            merged.append(izq[i])
+            i += 1
+        else:
+            merged.append(derecha[j])
+            j += 1
+
+    merged.extend(izq[i:])
+    merged.extend(derecha[j:])
+    return merged 
+
+def merge_sort_simple(data: List[Dict], descendente: bool) -> List[Dict]: #resive parametros como data la cual es una lista de diccionarios y un parametro booleano, y retorna otra lista de dicc
+    #Merge Sort recursivo simple
+    if len(data) <= 1: # si la lista tiene 0 o 1 elementos, ya esta ordenada 
+        return data
+
+    mitad = len(data) // 2
+
+    #esto se realizara hasta que las sublistas solo tengan un elemnto cada una
+    izq = merge_sort_simple(data[:mitad], descendente) #data[:mitad] se refiere a la parte izq
+    derecha = merge_sort_simple(data[mitad:], descendente) #data[mitad:] se refiere a la parte derech
+
+    return merge(izq, derecha, descendente) #devuelve la combinacion de las dos mitade ordenadas en una lista ordenada
+
+# Función paralela (usa el Pool)
+def paralelo_merge_sort(data: List[Dict], descendente: bool, pool: Pool) ->List[Dict]:
+    #Merge Sort que usa un pool de procesos para ordenar las mitades (primera división)
+    if len(data) <= 1:
+        return data
+
+    mitad = len(data) // 2
+
+    if len(data) > UMBRAL_PARALELO and pool is not None: #si la lista es muy grande usa procesamiento paralelo
+        # Ejecutar la ordenación de las mitades en procesos paralelos
+        result1 = pool.apply_async(merge_sort_simple, (data[:mitad], descendente)) # pool.apply_async() ejecuta una función en otro proceso, de forma asíncrona.
+        result2 = pool.apply_async(merge_sort_simple, (data[mitad:], descendente)) 
+
+        izq = result1.get()
+        derecha = result2.get()
+
+    else:
+        # Continuar con la versión simple si el segmento es pequeño
+        izq = merge_sort_simple(data[:mitad], descendente)
+        derecha = merge_sort_simple(data[mitad:], descendente)
+
+    return merge(izq, derecha, descendente)
+
+def merge_sort_multiproceso(data: List[Dict], descendente: bool) -> List[Dict]:
+    # Función de envoltura para inicializar el Pool (Implementación Multiproceso 1)
+    num_procesos = cpu_count()
+    with Pool(processes=num_procesos) as pool: #se crea un pool de procesos igual al numero de nucleos
+        print(f"Usando {num_procesos} procesos para Merge Sort paralelo.")
+        return paralelo_merge_sort(data, descendente, pool)
+
+
+# --- 4. Algoritmo 2: Quick Sort (Simple y Multiproceso) ---
+
+def quick_sort_simple(data: List[Dict], descendente: bool) -> List[Dict]:
+    #Quick Sort recursivo simple
+    if len(data) <= 1:
+        return data
+        
+    pivote = data[0] #usa el primer elemento como pivote
+    pivote_llave = obtener_clave(pivote) 
+    #se dividen los elemtentos respecto al pivote 
+    menor = []
+    igual = [pivote]
+    mayor = []
+
+    # Partición
+    for item in data[1:]:
+
+        item_llave = obtener_clave(item) 
+
+        if item_llave == pivote_llave:
+            igual.append(item)
+        elif item_llave < pivote_llave:
+            menor.append(item)
+        else:
+            mayor.append(item)
+
+    # Ordenar recursivamente las sublistas
+    sorted_menor = quick_sort_simple(menor, descendente)
+    sorted_mayor = quick_sort_simple(mayor, descendente)
+
+    # Combinar
+    if descendente:
+        return sorted_mayor + igual + sorted_menor # Mayor a menor, sortede ordena listas 
+    else:
+        return sorted_menor + igual + sorted_mayor # en el caso de que se quiera de menor a mayor
+
+
+# Quick sort multiprocesamiento
+def paralelo_quick_sort(data: List[Dict], descendente: bool, pool: Pool) -> List[Dict]:
+    # Quick Sort que usa el Pool de procesos para ordenar las particiones
+    if len(data) <= 1:
+        return data
+
+    pivote = data[0]
+    pivote_llave = obtener_clave(pivote) 
+
+    menor = []
+    igual = [pivote]
+    mayor = []
+
+    for item in data[1:]:
+        item_llave = obtener_clave(item) 
+
+        if item_llave == pivote_llave:
+            igual.append(item)
+        elif item_llave < pivote_llave:
+            menor.append(item)
+        else:
+            mayor.append(item)
+
+    if len(data) > UMBRAL_PARALELO and pool is not None:
+        # Ejecutar la ordenación de las particiones en procesos paralelos
+        result1 = pool.apply_async(quick_sort_simple, (menor, descendente))
+        result2 = pool.apply_async(quick_sort_simple, (mayor, descendente))
+
+        sorted_menor = result1.get()
+        sorted_mayor = result2.get()
+
+    else:
+        sorted_menor = quick_sort_simple(menor, descendente)
+        sorted_mayor = quick_sort_simple(mayor, descendente)
+
+    if descendente:
+        return sorted_mayor + igual + sorted_menor
+    else:
+        return sorted_menor + igual + sorted_mayor
+
+def quick_sort_multiproceso(data: List[Dict], descendente: bool) -> List[Dict]:
+    # Función de envoltura para inicializar el Pool (Implementación Multiproceso 2)
+    num_procesos = cpu_count()
+    
+    with Pool(processes=num_procesos) as pool:
+        print(f"Usando {num_procesos} procesos para Quick Sort paralelo.")
+        return paralelo_quick_sort(data, descendente, pool)
+
+
+# --- 5. Lógica para medir el tiempo ---
+
+def medir_tiempo(func: Callable, data: List[Dict], descendente: bool) -> float: #Callabe indica que func es una funcion que se puede ordenar 
+    #se mide el tiempo de ejecución de una función de ordenamiento
+
+    # Crear una copia de los datos para asegurar que la función de ordenamiento siempre opere sobre datos no ordenados y evitar efectos secundarios
+    data_copy = [item.copy() for item in data]
+
+    start_time = time.perf_counter() #medir el tiempo con presicion
+    # ejecuta la funcion y mide cuanto tiempo tomo
+    func(data_copy, descendente) 
+    end_time = time.perf_counter()
+
+    # Retorna el tiempo en segundos
+    return end_time - start_time
+
+
+# --- 6. Ejecución Principal ---
+
+if __name__ == "__main__":
+    
+    # Archivo a usar
+    ARCHIVO_DATOS = 'temperaturas.csv'  # en el caso de que el archivo no este en la misma caperta aqui debera ir la direccion del archivo
+    print(f"=== Proyecto EDA: Analisis de Temperaturas Globales ===")
+
+    all_data = lector_datos(ARCHIVO_DATOS)
+
+    if not all_data:
+        print("No se puede continuar sin datos.")
+        sys.exit(1)
+
+    print(f"Datos cargados: {len(all_data)} registros.")
+    print("-" * 50)
+
+    # Definir las funciones a probar
+    algoritmos = {
+        "Merge Sort (Simple)": merge_sort_simple,
+        "Quick Sort (Simple)": quick_sort_simple,
+        "Merge Sort (Multiproceso)": merge_sort_multiproceso,
+        "Quick Sort (Multiproceso)": quick_sort_multiproceso
+    }
+
+    # Ejecutar y medir cada algoritmo
+    results = {}
+    
+    for name, func in algoritmos.items():
+        print(f"Ejecutando: {name}...")
+        
+        # Medir tiempo
+        tiempo_transcurrido = medir_tiempo(func, all_data, descendente=ORDEN_DESCENDENTE)
+        results[name] = tiempo_transcurrido
+        
+        print(f"Tiempo de ejecución: {tiempo_transcurrido:.4f} segundos.")
+        print("-" * 50)
+
+    # Mostrar resultados
+    print("--- Resumen de Tiempos (Segundos) ---")
+    print(f"{'Algoritmo':<30} | {'Tiempo (s)':>10}")
+    print("------------------------------ | ----------")
+    for name, time_s in results.items(): # recorre los algoritmos y mide cuanto tarda cada uno
+        print(f"{name:<30} | {time_s:>10.4f}") # name<30 alinea a la izq con 30 caracteres, >10.4 alinea a la derecha 10 caracteres con 4 decimales
