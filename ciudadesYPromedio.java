@@ -12,7 +12,7 @@ public class ciudadesYPromedio implements Comparable<ciudadesYPromedio>{
         this.promedioTemperatura = promedioTemperatura;
     }
 
-    public double getPromedio(){
+    public double getPromedioTemperatura(){
         return this.promedioTemperatura;
     }
 
