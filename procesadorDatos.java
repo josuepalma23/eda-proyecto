@@ -23,9 +23,17 @@ public class procesadorDatos{
                 try {
                     String[] columnas = linea.split(",");
 
-                    String ciudad = columnas[1];
-                    double temp = Double.parseDouble(columnas[2]);
-                    String anioStr = columnas[3].substring(0, 4);
+                    //se quitan las comillas de los datos para que el procesamiento funcione
+                    String ciudad = columnas[1].replace("\"", "");
+                    String tempStr = columnas[2].replace("\"", "");
+                    String fechaStr = columnas[3].replace("\"", "");
+
+                    double temp = Double.parseDouble(tempStr);
+
+                    //se obtiene el nuevo formato del anio
+                    String[] fechaPartes = fechaStr.split("/");
+                    String anioStr = fechaPartes[2];
+
                     String clave = ciudad + "-" + anioStr;
 
                     /*
@@ -38,7 +46,7 @@ public class procesadorDatos{
                     agregadorNuevo.agregar(temp); //incrementar el conteo de la suma total del agregador
 
                 } catch (Exception e){
-
+                    System.err.println("Error al procesar la linea " + linea + e.getMessage());
                 }
             }
         }
@@ -53,19 +61,35 @@ public class procesadorDatos{
             //obtener los valores de cada clave
             agregadorTemperatura agregador = promediosCiudadYAnio.get(clave);
 
-            //procesar el resultado
-
             /*
-             * Estas lineas son importantes porq nos ayuda a reconstruir los datos desde la clave
-             * "Portoviejo-2018" --> ["Portoviejo", "2018"]
-             * asi se recupera de nuevo la informacion.
+             * BUG manejado, al intentar ejecutar el programa, causaba un error que lo terminaba instantaneamente
+             * despues de un bucle infinito, resulta que una ciudad como "Ulan-Bator" tiene un guion
+             * por lo que se escribe su clave de distinta forma, aqui se maneja este error.
              */
-            String[] claveSplit = clave.split("-");
-            String ciudad = claveSplit[0];
-            int anio = Integer.parseInt(claveSplit[1]);
-            double promedio = agregador.getPromedio();
 
-            resultados.add(new ciudadesYPromedio(ciudad, anio, promedio));
+             //buscamos la posicion de un ultimo guion en la clave
+             int ultimoGuion = clave.lastIndexOf("-");
+
+             if (ultimoGuion == -1) { //esto quiere decir que la clave esta mal formada, entonces se ignoramos
+                continue;                
+             }
+
+             //la ciudad ahora se define como todo hasta el ultimo guion
+             String ciudad = clave.substring(0, ultimoGuion);
+
+             //el anio ahora es todo DESPUES del ultimo guion
+             String anioStr = clave.substring(ultimoGuion + 1);
+             
+             try {
+                //ahora el anio es siempre un numero
+                int anio = Integer.parseInt(anioStr);
+                double promedio = agregador.getPromedio();
+
+                resultados.add(new ciudadesYPromedio(ciudad, anio, promedio));
+
+             } catch (Exception e) {
+                System.err.println("Clave mal formada, ignorando... " + clave);
+             }
 
         }
         return resultados;
