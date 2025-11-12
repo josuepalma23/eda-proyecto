@@ -33,6 +33,30 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ---
 
+## Explicación de los Tipos de Ordenamiento (Josue)
+
+---
+
+## Librerías y Funciones Java (Josue)
+
+---
+
+## Librerías y Funciones Python (Jhon)
+
+---
+
+## Tablas Comparativas (Jhon)
+
+### Tabla 1: Procesamiento simple (Java vs Python)
+
+### Tabla 2: Procesamiento simple vs multiprocesamiento (Python)
+
+---
+
+## Análisis de las Tablas (Zenán)
+
+---
+
 ## Análisis de Temperaturas posterior al ordenamiento
 
 Al completarse el ordenamiento, se generarán archivos que cumplen con el objetivo de mostrar las temperaturas de ciudades en orden **descendente**. Esto genera el siguiente análisis:
@@ -40,4 +64,6 @@ Al completarse el ordenamiento, se generarán archivos que cumplen con el objeti
 
 **Nota:** Los datos generados después del ordenamiento no pueden describir alguna tendencia con respecto a la problemática del calentamiento global, dado que para esto, se necesitaría también tomar en cuenta a las fechas o el cambio de tiempo en el desarrollo de las fórmulas, más bien, podría ser interpretado como un "record histórico" de las ciudades-años más calientes en un período de 25 años.
 
+---
 
+## Conclusiones finales (Zenán)
