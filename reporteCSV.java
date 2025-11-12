@@ -11,7 +11,7 @@ public class reporteCSV {
         long tiempoINICIAL = System.nanoTime();
         
         String archivoEntrada = "nuevo.csv";
-        String archivoSalida = "reporte_ordenado.csv";
+        String archivoSalida = "procesamiento_simple_java.csv";
 
         System.out.println("Procesamiento Simple: ");
         
@@ -62,14 +62,13 @@ public class reporteCSV {
         System.out.println(String.format("Ordenado con MergeSort -> \t%d nanosegundos", tiempoMerge));
         
         // --- CONCLUSIÓN de Tiempos ---
-        System.out.println("\n--- CONCLUSIÓN DE TIEMPOS DE EJECUCION---");
+        System.out.println("\n--- CONCLUSION DE TIEMPOS DE EJECUCION---");
         // Compara los dos tiempos de ejecución.
         if (tiempoMerge < tiempoQuick) {
-            System.out.println("CONCLUSIÓN: MergeSort fue mas efectivo computacionalmente al ser mas rapido");
+            System.out.println("CONCLUSION: MergeSort fue mas efectivo computacionalmente al ser mas rapido");
         } else {
-            System.out.println("CONCLUSIÓN: QuickSort fue mas efectivo computacionalmente al ser mas rapido");
+            System.out.println("CONCLUSION: QuickSort fue mas efectivo computacionalmente al ser mas rapido");
         }
-        System.out.println("fin de la comparacion de tiempos de ejecucion");
 
         System.out.println("----------------------");
 

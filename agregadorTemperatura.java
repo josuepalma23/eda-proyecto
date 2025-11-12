@@ -1,9 +1,9 @@
 /*
- Esta clase es auxiliar y ayuda a mantener un registro 
- o una suma acumulada de los promedios.
+ *Esta clase es auxiliar y ayuda a mantener un registro 
+ *o una suma acumulada de los promedios.
 
- Es decir, aqui se declara la abstraccion de la formula #1
- Temperatura promedio por anio.
+ *Es decir, aqui se declara la abstraccion de la formula #1
+ *Temperatura promedio por anio.
  */
 
 public class agregadorTemperatura{

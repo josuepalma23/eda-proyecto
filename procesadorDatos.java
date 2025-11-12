@@ -24,9 +24,23 @@ public class procesadorDatos{
                     String[] columnas = linea.split(",");
 
                     //se quitan las comillas de los datos para que el procesamiento funcione
-                    String ciudad = columnas[1].replace("\"", "");
+                    String ciudad = columnas[1].replace("\"", ""); 
                     String tempStr = columnas[2].replace("\"", "");
+                    /*
+                     * Solucion al bug de los datos con parentesis
+                     * ahora tambien se quitan los parentesis de los datos
+                     * para el procesamiento.
+                     */
+                    tempStr = tempStr.replace("(", "");
+                    tempStr = tempStr.replace(")", "");
+                    
                     String fechaStr = columnas[3].replace("\"", "");
+                    
+                    //se salta la linea del archivo si esta quedó vacía despues de las
+                    //comprobaciones.
+                    if (tempStr.isEmpty()) {
+                        continue;
+                    }
 
                     double temp = Double.parseDouble(tempStr);
 
