@@ -33,7 +33,7 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ---
 
-## Explicación de los Tipos de Ordenamiento (Josue)
+## Explicación de los Tipos de Ordenamiento (Zenán)
 
 ---
 
