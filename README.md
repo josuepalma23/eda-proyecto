@@ -35,6 +35,11 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ## Explicación de los Tipos de Ordenamiento (Zenán)
 
+En el proyecto se utilizaron dos tipos de ordenamiento de caso promedio, Quick Sort y Merge Sort. Sus conceptos a continuación:
+
+- Quick Sort: Usa una estrategia de 'divide y vencerás' para ordenar un arreglo, es decir, divide un gran arreglo de datos en subarreglos más pequeños. Su funcionamiento es el siguiente, selecciona un elemento que servirá como pivote y posteriormente ordena los valores mayores que esté a un lado y los menores al otro lado, repitiendo estos pasos hasta que esté ordenado el arreglo. Esta técnica es altamente eficiente en conjuntos de datos muy grandes debido a que su complejidad promedio es O(n*logn).
+- Merge Sort: De igual manera, implementa la estrategia de 'divide y vencerás' ya que divide el conjunto de datos en mitades cada vez más pequeñas, las ordena y luego las fusiona de nuevo en una sola lista ordenada. Su tiempo de ejecución es similar al de Quick Sort que se mencionó anteriormente, ya que es O(n*logn).
+
 ---
 
 ## Librerías y Funciones Java (Josue)
