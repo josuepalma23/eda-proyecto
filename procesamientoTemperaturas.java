@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 
 public class procesamientoTemperaturas{
@@ -48,6 +50,54 @@ public class procesamientoTemperaturas{
         return i + 1; //desde 0 hasta i son datos validos
     }
 
+
+public static Registro[] calcularPromediosAnuales(Registro[] datos) {
+        //mapa para guardar la suma de las temperaturas de ciudad-anio
+        Map<String, Double> sumas = new HashMap<>();
+        
+        //conteo de dias por ciudad
+        Map<String, Integer> conteos = new HashMap<>();
+
+        for (Registro r : datos) {
+            String clave = r.ciudad + "|" + r.anio;
+
+            //si esta clave ya existe en el mapa de sumas
+            if (sumas.containsKey(clave)) {
+                double sumaActual = sumas.get(clave);
+                sumas.put(clave, sumaActual + r.avgTemp);
+            } else {
+                //si no existia crea la entrada en el mapa con la temperatura actual como valor inicial
+                sumas.put(clave, r.avgTemp);
+            }
+
+            //misma logica para los dias
+            if (conteos.containsKey(clave)) {
+                int conteoActual = conteos.get(clave);
+                conteos.put(clave, conteoActual + 1);
+            } else {
+                conteos.put(clave, 1);
+            }
+        }
+
+        ArrayList<Registro> listaTemporal = new ArrayList<>();
+
+        //por cada clave, obtener la suma total y los dias para usar la formula
+        for (String clave : sumas.keySet()) {
+            double sumaTotal = sumas.get(clave);
+            int cantidadDias = conteos.get(clave);
+
+            //formula
+            double promedio = sumaTotal / cantidadDias;
+            
+            String[] partes = clave.split("\\|");
+            String ciudad = partes[0];
+            String anio = partes[1];
+
+            listaTemporal.add(new Registro(ciudad, anio, promedio, true));
+        }
+
+        return listaTemporal.toArray(new Registro[0]);
+    }
 
     public static Registro[] mergeSort(Registro[] arr){
         //caso base
