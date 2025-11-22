@@ -1,7 +1,11 @@
-import java.io.*;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class procesamientoTemperaturas{
     //clase interna para describir cada registro
@@ -85,7 +89,7 @@ public class procesamientoTemperaturas{
 
     public static void main(String[] args) {
         //inicio del programa calculado al inicio
-        long tiempoInicio = System.nanoTime();
+        long inicioPrograma = System.nanoTime();
 
         String archivoEntrada = "nuevo.csv";
         String archivoSalida = "procesamiento_java.csv";
@@ -94,8 +98,6 @@ public class procesamientoTemperaturas{
         long inicioLectura = System.nanoTime();
 
         ArrayList<Registro> bufferLectura = new ArrayList<>();
-        //para los datos con parentesis y guiones y eso
-        Pattern limpiador = Pattern.compile("[\"\\(\\)-]");
 
         try (BufferedReader br = new BufferedReader(new FileReader(archivoEntrada))){
             String linea = br.readLine(); //leer la primera linea osea el encabezaod
@@ -117,10 +119,9 @@ public class procesamientoTemperaturas{
                     String brutoTemp = partes[2]
                                         .replace("\"", "")
                                         .replace("(", "")
-                                        .replace(")", "")
-                                        .replace("-", "");
+                                        .replace(")", "");
                     
-                    String temperatura = Double.parseDouble(brutoTemp);
+                    Double temperatura = Double.parseDouble(brutoTemp);
 
                     String brutoFecha = partes[3]
                                         .replace("\"", "")
@@ -135,7 +136,7 @@ public class procesamientoTemperaturas{
 
                     //filtro de las temperaturas
                     if (temperatura > -90) {
-                        bufferLectura.add(new Registro(ciudad, anio, temperatura, false));
+                        bufferLectura.add(new Registro(ciudad, anio, temperatura, true));
                     } else {
                         bufferLectura.add(new Registro("", "", 0.0, false));
                     }
@@ -156,6 +157,47 @@ public class procesamientoTemperaturas{
         long finLectura = System.nanoTime();
         System.out.println("Tiempo de lectura de datos: " + (finLectura - inicioLectura) / 1_000_000_000.0);
         System.out.println("Cantidad de datos: " + datosCrudos.length);
+
+        //depuracion y tiempos de depuracion
+        System.out.println("Depuracion con logica del algoritmo QuickSort");
+        long inicioDepuracion = System.nanoTime();
+
+        int dValidos = Depuracion(datosCrudos);
+        Registro[] datosLimpios = Arrays.copyOfRange(datosCrudos, 0, dValidos);
+        datosCrudos = null;
+
+        long finDepuracion = System.nanoTime();
+        System.out.printf("Tiempo de depuracion: %.4f s\n", (finDepuracion - inicioDepuracion) / 1_000_000_000.0);
+        System.out.println("Datos Validos: " + dValidos);
+
+        //ordenamiento con el mergeSort
+        System.out.println("Ordenamiento utilizando MergeSort");
+        long inicioOrdenamiento = System.nanoTime();
+
+        Registro[] datosOrdenados = mergeSort(datosLimpios);
+
+        long finOrdenamiento = System.nanoTime();
+        System.out.printf("Tiempo de Ordenamiento %.4f s\n", (finOrdenamiento - inicioOrdenamiento) / 1_000_000_000.0);
+        System.out.println("Datos ordenados: " + datosOrdenados.length);
+
+        //escribir en el archivo 
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(archivoSalida))){
+            bw.write("Anio, Ciudad, TemperaturaPromedio");
+            bw.newLine();
+
+            for(Registro r : datosOrdenados){
+                bw.write(r.anio + ",\"" + r.ciudad + "\"," + r.avgTemp);
+                bw.newLine();
+            }
+
+        } catch(IOException e ){
+            System.out.println("Error al escribir: " + e.getMessage());
+        }
+
+        long finPrograma = System.nanoTime();
+        System.out.println("Procesamiento Completado");
+        System.out.printf("Tiempo total del programa %.4f segundos .\n", (finPrograma - inicioPrograma) / 1_000_000_000.0);
+
 
 
     }
