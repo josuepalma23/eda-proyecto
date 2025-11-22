@@ -220,6 +220,7 @@ public static Registro[] calcularPromediosAnuales(Registro[] datos) {
         System.out.printf("Tiempo de depuracion: %.4f s\n", (finDepuracion - inicioDepuracion) / 1_000_000_000.0);
         System.out.println("Datos Validos: " + dValidos);
 
+
         //crear los promedios 
         System.out.println("Calculando promedios...");
         Registro[] datosPromediados = calcularPromediosAnuales(datosLimpios);
@@ -228,7 +229,6 @@ public static Registro[] calcularPromediosAnuales(Registro[] datos) {
         System.out.println("Ordenamiento utilizando MergeSort");
         long inicioOrdenamiento = System.nanoTime();
 
-        // Fíjate que aquí pasamos 'datosPromediados'
         Registro[] datosOrdenados = mergeSort(datosPromediados);
 
         long finOrdenamiento = System.nanoTime();
@@ -241,7 +241,9 @@ public static Registro[] calcularPromediosAnuales(Registro[] datos) {
             bw.newLine();
 
             for(Registro r : datosOrdenados){
-                bw.write(r.anio + ",\"" + r.ciudad + "\"," + r.avgTemp);
+                // formato de 2 decimales
+                String tempFormateada = String.format("%.2f", r.avgTemp).replace(',', '.');
+                bw.write(r.anio + ",\"" + r.ciudad + "\"," + tempFormateada);
                 bw.newLine();
             }
 
