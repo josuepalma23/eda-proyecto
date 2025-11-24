@@ -18,9 +18,6 @@ Con esto en mente, el objetivo del proyecto se basa en **ordenar los registros d
 
 Este proceso permitirá analizar el comportamiento de los algoritmos de ordenación **Merge Sort** y **Quick Sort**, tanto en su implementación simple (en este caso, **Java**) y su versión paralelizada (que sería **Python con `multiprocessing`**), midiendo así el tiempo total de ejecución en diferentes equipos.
 
-
-![Fórmula de Temperatura promedio por Año](https://github.com/user-attachments/assets/4ef7bacf-cdb9-4461-9423-d56daac95cbb)
-
 <p align="center">
   <img src="https://github.com/user-attachments/assets/4ef7bacf-cdb9-4461-9423-d56daac95cbb" alt="Fórmula de temperatura promedio">
 </p>
