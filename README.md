@@ -45,21 +45,21 @@ En el proyecto se utilizaron dos tipos de ordenamiento de caso promedio, Quick S
 ## Librerías y Funciones Java (Josue)
 
 **Lectura y Escritura de archivos de entrada y salida**
-java.io.BufferedReader 
-java.io.BufferedWriter 
-java.io.FileReader
-java.io.FileWriter
+- java.io.BufferedReader 
+- java.io.BufferedWriter 
+- java.io.FileReader
+- java.io.FileWriter
 
 **Manejo de Excepciones**
-java.util.IOException 
+- java.util.IOException 
 
 **Control de Arreglos y Listas**
-java.util.ArrayList
-java.util.Arrays
+- java.util.ArrayList
+- java.util.Arrays
 
 **Librerías de Mapas y Hashing para pares de entrada y clave**
-java.util.Map
-java.util.HashMap
+- java.util.Map
+- java.util.HashMap
 
 
 ---
