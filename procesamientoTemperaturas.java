@@ -30,24 +30,31 @@ public class procesamientoTemperaturas{
      * Depuracion utilizando logica QuickSort
      * en vez de que el pivote sea un numero, sera el criterio de 
      * validez del dato, asi se mueven todos los datos validos a la izquierda
-     * y los invalidos a la derecha
+     * y los invalidos a la derecha, dejando los limpios en el centro
      */
 
     public static int Depuracion(Registro[] arr){
-        int i = -1; //ultimo elemento valido encontrado
+        int izq = 0;
+        int der = arr.length - 1;
 
-        for(int j = 0; j < arr.length; j++){
-            //si el dato es valido y no es 0 se intercambia
-            if(arr[j].esValido && arr[j].avgTemp != 0.0){
-                i++;
+        while (izq <= der) {
+            while (izq <= der && arr[izq].esValido && arr[izq].avgTemp != 0.0) {
+                izq++;
+            }
 
-                //intercamibo
-                Registro temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+            while (izq <= der && (!arr[der].esValido || arr[der].avgTemp == 0.0)) {
+                der--;
+            }
+
+            if (izq < der) {
+                Registro temp = arr[izq];
+                arr[izq] = arr[der];
+                arr[der] = temp;
+                izq++;
+                der--;
             }
         }
-        return i + 1; //desde 0 hasta i son datos validos
+        return izq;
     }
 
 
