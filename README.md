@@ -21,6 +21,10 @@ Este proceso permitirá analizar el comportamiento de los algoritmos de ordenaci
 
 ![Fórmula de Temperatura promedio por Año](https://github.com/user-attachments/assets/4ef7bacf-cdb9-4461-9423-d56daac95cbb)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4ef7bacf-cdb9-4461-9423-d56daac95cbb" alt="Fórmula de temperatura promedio">
+</p>
+
 ---
 
 ## Características Técnicas de las computadoras del Grupo
