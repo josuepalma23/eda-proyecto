@@ -98,15 +98,25 @@ def procesa_bloque(bloque):
     try:
         bloque = bloque.copy()
 
+        ##cambio de nombres a las columnas del csv
+        bloque = bloque.rename(columns={
+            'City' : 'Ciudad',
+            'AverageTemperature' : 'TempPromedio',
+        })
+
+        ##verificar si el renombrado de arriba funciono
+        if 'TempPromedio' not in bloque.columns:
+            bloque = bloque.rename(columns={'AvgTemperature' : 'TempPromedio'})
+
         #limpieza y conversion a numerico
-        bloque['TempPromedio'] = bloque['TempPromedio'].replace(r'["\(\)-]', '', regex=True)
+        bloque['TempPromedio'] = bloque['TempPromedio'].astype(str).replace(r'["\s]', '', regex=True)
         bloque['TempPromedio'] = pd.to_numeric(bloque['TempPromedio'], errors='coerce')
 
         # limpieza de fecha y extraccion del anio 
-        bloque['Fecha'] = bloque['Fecha'].replace(r'["\(\)]', '', regex=True)
+        bloque['Fecha'] = bloque['Fecha'].astype(str).replace(r'["\(\)]', '', regex=True)
         bloque = bloque.dropna(subset=['TempPromedio', 'Fecha'])
 
-        bloque['Anio'] = bloque['Fecha'].str.split('/').str[2]
+        bloque['Anio'] = bloque['Fecha'].apply(lambda x: x.split('/')[2] if '/' in x else np.nan)  ##Esta funcion lambda extrae el anio de la fecha
         bloque = bloque.dropna(subset=['Anio'])
 
         # filtrado de adeveras para eliminar valores ilogicos
@@ -145,7 +155,7 @@ def main():
     try:
         iterador_csv = pd.read_csv(
             archivo_entrada,
-            usecols = ['Ciudad', 'TempPromedio', 'Fecha'],
+            usecols = ['City', 'AvgTemperature', 'Fecha'], ## columnas necesarias en el csv
             chunksize = TAMANIO_BLOQUE,
             encoding = 'utf-8',
             low_memory = True,
@@ -153,8 +163,11 @@ def main():
         )
         for bloque in iterador_csv:
             bloques.append(bloque)
+    except ValueError as ve:
+        print(f"\n Error de columnas: {ve}")
+        return
     except Exception as e:
-        print(f"\n ERROR: Al leer el archivo {archivo_entrada}. Detalles: {e}")
+        print(f"\n Error critico al leer el archivo: {e}")
         return
     
     resultados = procesar_en_paralelo(bloques, procesa_bloque)
