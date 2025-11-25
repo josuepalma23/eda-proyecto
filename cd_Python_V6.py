@@ -147,7 +147,7 @@ def main():
             archivo_entrada,
             usecols = ['Ciudad', 'TempPromedio', 'Fecha'],
             chunksize = TAMANIO_BLOQUE,
-            encodign = 'utf-8',
+            encoding = 'utf-8',
             low_memory = True,
             skip_blank_lines = True
         )
